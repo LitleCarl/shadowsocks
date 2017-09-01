@@ -111,6 +111,7 @@ class TCPRelayHandler(object):
 
     def __init__(self, server, fd_to_handlers, loop, local_sock, config,
                  dns_resolver, is_local):
+        self._firstPacket = False
         self._server = server
         self._fd_to_handlers = fd_to_handlers
         self._loop = loop
@@ -562,6 +563,20 @@ class TCPRelayHandler(object):
             buf_size = DOWN_STREAM_BUF_SIZE
         try:
             data = self._local_sock.recv(buf_size)
+            if self._firstPacket is False and not is_local:
+                self._firstPacket = True
+                methods = ['aes-256-cfb', 'aes-128-cfb']
+                encrypt_index = common.ord(data[0])
+                print(":".join("{:02x}".format(ord(c)) for c in data))
+                if encrypt_index < len(methods):
+                    data = data[1:]
+                    print('method!!!', methods[encrypt_index])
+
+                    self._cryptor = cryptor.Cryptor(self._config['password'],
+                                                    methods[encrypt_index],
+                                                    self._config['crypto_path'])
+                else:
+                    return
         except (OSError, IOError) as e:
             if eventloop.errno_from_exception(e) in \
                     (errno.ETIMEDOUT, errno.EAGAIN, errno.EWOULDBLOCK):
@@ -749,6 +764,11 @@ class TCPRelay(object):
             raise Exception("can't get addrinfo for %s:%d" %
                             (listen_addr, listen_port))
         af, socktype, proto, canonname, sa = addrs[0]
+        print('af:', af)
+        print('socktype:', socktype)
+        print('proto:', proto)
+        print('canonname:', canonname)
+        print('sa:', sa)
         server_socket = socket.socket(af, socktype, proto)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(sa)

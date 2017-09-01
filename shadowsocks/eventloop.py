@@ -20,7 +20,7 @@
 
 from __future__ import absolute_import, division, print_function, \
     with_statement
-
+import sys
 import os
 import time
 import socket
@@ -29,6 +29,8 @@ import traceback
 import errno
 import logging
 from collections import defaultdict
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from shadowsocks import shell
 
