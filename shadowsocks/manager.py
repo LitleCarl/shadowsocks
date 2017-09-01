@@ -17,6 +17,8 @@
 
 from __future__ import absolute_import, division, print_function, \
     with_statement
+import sys
+import os
 
 import errno
 import traceback
@@ -24,6 +26,7 @@ import socket
 import logging
 import json
 import collections
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from shadowsocks import common, eventloop, tcprelay, udprelay, asyncdns, shell
 
