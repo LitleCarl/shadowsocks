@@ -736,6 +736,8 @@ class TCPRelayHandler(object):
 class TCPRelay(object):
 
     def __init__(self, config, dns_resolver, is_local, stat_callback=None):
+        logging.info(config)
+        logging.info('--------')
         self._config = config
         self._is_local = is_local
         self._dns_resolver = dns_resolver
